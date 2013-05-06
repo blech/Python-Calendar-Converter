@@ -59,11 +59,11 @@ class Calendar(object):
         else:
             date_dict["french_year"] = date_dict["year"] - 1791
         
+        if date_dict["french_year"] > 4999:
+            return -7
         # Converting days + month to  days_passed
         date_dict["days_passed"] = self.__days_passed__(date_dict["day"], date_dict["month"], self.__is_gregorian_leap_year__(date_dict["year"]))
         
-        if date_dict["french_year"] > 4999:
-            return -7
         
         french_date = self.__to_french__(date_dict["days_passed"], date_dict["french_year"])
         return french_date
@@ -92,9 +92,15 @@ class Calendar(object):
         days_in_month = days_passed % 30
         month_number = ((days_passed - days_in_month) / 30) + 1
         month_name = ""
+        if days_in_month == 0:
+            month_number -= 1
+            days_in_month = 30
         days_in_decade = days_in_month % 10
         day_name = ""
         decade = ((days_in_month - days_in_decade) / 10) + 1
+        if days_in_decade == 0:
+            decade -= 1
+            days_in_decade = 10
         decade_name = roman.toRoman(decade)
         
         
@@ -148,32 +154,37 @@ class Calendar(object):
     
     def __days_passed__(self, day, month, leap):
         days_passed = day
-        if month > 1:
-            days_passed += 31
-        if month > 2 and not leap:
-            days_passed += 28
-        if month > 2 and leap:
-            days_passed += 29
-        if month > 3:
-            days_passed += 31
-        if month > 4:
-            days_passed += 30
-        if month > 5:
-            days_passed += 31
-        if month > 6:
-            days_passed += 30
-        if month > 7:
-            days_passed += 31
-        if month > 8:
-            days_passed += 31
-        if month > 9:
-            days_passed += 30
-        if month > 10:
-            days_passed += 31
-        if month > 11:
-            days_passed += 30
-        # Making it start from september 22
-        return days_passed + 101
+        
+        if month < 9 or (month == 9 and day < 22):
+            if month > 1:
+                days_passed += 31
+            if month > 2 and not leap:
+                days_passed += 28
+            if month > 2 and leap:
+                days_passed += 29
+            if month > 3:
+                days_passed += 31
+            if month > 4:
+                days_passed += 30
+            if month > 5:
+                days_passed += 31
+            if month > 6:
+                days_passed += 30
+            if month > 7:
+                days_passed += 31
+            if month > 8:
+                days_passed += 21
+            days_passed += 101
+        else:
+            if month == 9:
+                days_passed = day - 21
+            elif month == 10:
+                days_passed = 9 + day
+            elif month == 11:
+                days_passed = 9 + 31 + day
+            elif month == 12:
+                days_passed = 9 + 31 + 30 + day
+        return days_passed
         
     def __is_gregorian_leap_year__(self, year):
         if year % 4 == 0:

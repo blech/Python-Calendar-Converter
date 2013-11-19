@@ -1,6 +1,8 @@
 # This Python file uses the following encoding: utf-8
 # MIT Licensed 2013 Robert Greener
 
+from datetime import datetime
+
 import roman
 
 class Calendar(object):
@@ -24,12 +26,6 @@ class Calendar(object):
             "year": date_split[2]
         }
         
-        # Attempting to convert day to int
-        try:
-            date_dict["day"] = int(date_dict["day"])
-        except:
-            return -3
-            
         date_dict["month"] = date_dict["month"].upper()
         
         # Converting month to number and making sure that the month is infact a month
@@ -38,6 +34,15 @@ class Calendar(object):
         if not date_dict["month"]:
             return - 4
         
+        return self.__to_french_from_dict(date_dict)
+
+    def __to_french_from_dict(self, date_dict):
+        # Attempting to convert day to int
+        try:
+            date_dict["day"] = int(date_dict["day"])
+        except:
+            return -3
+            
         # Attempting to convert the year to an int
         try:
             date_dict["year"] = int(date_dict["year"])
@@ -68,7 +73,19 @@ class Calendar(object):
         
         french_date = self.__to_french__(date_dict["days_passed"], date_dict["french_year"])
         return french_date
-    
+
+    def to_french_revolutionary_datetime(self, dt):
+        if not isinstance(dt, datetime):
+            return -1
+        
+        date_dict = {
+            "day": dt.day,
+            "month": dt.month,
+            "year": dt.year
+        }
+        
+        return self.__to_french_from_dict(date_dict)
+
     def __to_french__(self, days_passed, year):
         roman_year = roman.toRoman(year)
         
